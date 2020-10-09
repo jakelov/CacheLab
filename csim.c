@@ -48,23 +48,6 @@ void printUsage()
 }
 
 /**
- * Helper function to get a range of bits.
-*/
-unsigned long getBits(unsigned long source, int low, int high)
-{
-    if (low < 0 || high > 63)
-    {
-        return 0;
-    }
-    else
-    {
-        unsigned long bitsResult = source << (63 - high);
-        bitsResult = bitsResult >> (63 - high);
-        return bitsResult >> (low);
-    }
-}
-
-/**
  * Inserts at the front of the array to continue the trend that tags[setindex][0] is the LRU line
 */
 void insertAtFront(Cache *cache, int set_index, int index)
@@ -89,11 +72,8 @@ void insertAtFront(Cache *cache, int set_index, int index)
 
     for (int j = 0; j < cache->associativity; j++)
     {
-        cache->tags[set_index][j] = temp_tags[set_index][j];   
-        //printf("line = %lu\n", temp_tags[set_index][j]);   
+        cache->tags[set_index][j] = temp_tags[set_index][j];     
     }
-    //printf("\n");
-
 }
 
 /**
@@ -155,23 +135,6 @@ void accessCache(Cache *cache, unsigned long address, int *hit_count, int *miss_
 
         cache->tags[set_index][(cache->associativity) - 1] = tag;
         insertAtFront(cache, set_index, ((cache->associativity) - 1));
-
-        //for (int j = 0; j < cache->associativity; j++)
-        //{
-        //    if (cache->tags[set_index][j] == -1)
-        //    {
-        //        cache->tags[set_index][j] = tag;
-        //        insertAtFront(cache, set_index, j);
-        //        break;   
-        //    }
-        //    else if (j == ((cache->associativity) - 1))
-        //    {
-        //        cache->tags[set_index][j] = tag;
-        //        insertAtFront(cache, set_index, j);
-        //        break;
-        //    }
-        //}
-
     }
     
     return; 
@@ -297,5 +260,13 @@ int main(int argc, char** argv)
     // Print and close.
     printSummary(hit_count, miss_count, eviction_count);
     fclose(file);
+
+    //free memory
+    for (int x = 0; x < cache.sets; x ++)
+    {
+        free(cache.tags[x]);
+    }
+    free(cache.tags);
+
     return 0;
 }
